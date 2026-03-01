@@ -1,0 +1,40 @@
+{
+    "projects": {
+        "fields": {
+            "title": "VARCHAR(255) NOT NULL",
+            "description": "TEXT",
+            "image_url": "TEXT",
+            "demo_url": "TEXT",
+            "github_url": "TEXT",
+            "tags": "TEXT"
+        }
+    },
+    "experiences": {
+        "fields": {
+            "type": "VARCHAR(50) NOT NULL DEFAULT 'work'",
+            "date": "VARCHAR(100) NOT NULL",
+            "title": "VARCHAR(255) NOT NULL",
+            "subtitle": "VARCHAR(255)",
+            "description": "TEXT",
+            "skills": "TEXT"
+        }
+    },
+    "messages": {
+        "publicPost": true,
+        "fields": {
+            "name": "VARCHAR(255) NOT NULL",
+            "email": "VARCHAR(255) NOT NULL",
+            "message": "TEXT NOT NULL",
+            "read": "BOOLEAN DEFAULT false"
+        }
+    },
+    "articles": {
+        "fields": {
+            "title": "VARCHAR(255) NOT NULL",
+            "excerpt": "TEXT",
+            "content": "TEXT",
+            "tags": "TEXT",
+            "published": "BOOLEAN DEFAULT false"
+        }
+    }
+}

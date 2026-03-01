@@ -8,18 +8,18 @@ const JWT_SECRET = process.env.JWT_SECRET || "change_this_secret";
 
 /**
  * POST /api/auth/login
- * Body: { email, password }
+ * Body: { username, password }
  * Retourne un JWT valide 24h.
  */
 router.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: "Email et mot de passe requis" });
+        if (!username || !password) {
+            return res.status(400).json({ error: "Nom d'utilisateur et mot de passe requis" });
         }
 
-        const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        const result = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
 
         if (result.rows.length === 0) {
             return res.status(401).json({ error: "Identifiants incorrects" });
@@ -33,12 +33,12 @@ router.post("/login", async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, email: user.email },
+            { id: user.id, username: user.username },
             JWT_SECRET,
             { expiresIn: "24h" }
         );
 
-        res.json({ token, user: { id: user.id, email: user.email } });
+        res.json({ token, user: { id: user.id, username: user.username } });
     } catch (err) {
         console.error("Erreur login:", err);
         res.status(500).json({ error: "Erreur serveur" });
@@ -47,7 +47,7 @@ router.post("/login", async (req, res) => {
 
 /**
  * POST /api/auth/register
- * Body: { email, password }
+ * Body: { username, password }
  * Crée un compte admin. Protégé : nécessite le header X-Admin-Secret.
  */
 router.post("/register", async (req, res) => {
@@ -57,23 +57,23 @@ router.post("/register", async (req, res) => {
             return res.status(403).json({ error: "Accès interdit" });
         }
 
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: "Email et mot de passe requis" });
+        if (!username || !password) {
+            return res.status(400).json({ error: "Nom d'utilisateur et mot de passe requis" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await pool.query(
-            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
-            [email, hashedPassword]
+            "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username",
+            [username, hashedPassword]
         );
 
         res.status(201).json({ user: result.rows[0] });
     } catch (err) {
         if (err.code === "23505") {
-            return res.status(409).json({ error: "Cet email existe déjà" });
+            return res.status(409).json({ error: "Ce nom d'utilisateur existe déjà" });
         }
         console.error("Erreur register:", err);
         res.status(500).json({ error: "Erreur serveur" });

@@ -36,17 +36,17 @@ app.get("/api/health", (req, res) => {
  * Crée le compte admin par défaut s'il n'existe pas encore.
  */
 async function seedAdmin() {
-    const email = process.env.ADMIN_EMAIL || "admin@api.local";
+    const username = process.env.ADMIN_USERNAME || "admin";
     const password = process.env.ADMIN_PASSWORD || "admin123";
 
     try {
-        const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
+        const existing = await pool.query("SELECT id FROM users WHERE username = $1", [username]);
         if (existing.rows.length === 0) {
             const hashed = await bcrypt.hash(password, 10);
-            await pool.query("INSERT INTO users (email, password) VALUES ($1, $2)", [email, hashed]);
-            console.log(`👤 Compte admin créé : ${email}`);
+            await pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [username, hashed]);
+            console.log(`👤 Compte admin créé : ${username}`);
         } else {
-            console.log(`👤 Compte admin existant : ${email}`);
+            console.log(`👤 Compte admin existant : ${username}`);
         }
     } catch (err) {
         console.error("❌ Erreur création admin:", err.message);

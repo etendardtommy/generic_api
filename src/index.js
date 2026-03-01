@@ -33,6 +33,25 @@ app.get("/api/health", (req, res) => {
 });
 
 /**
+ * Crée la table users si elle n'existe pas.
+ */
+async function ensureUsersTable() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log("✅ Table \"users\" vérifiée");
+    } catch (err) {
+        console.error("❌ Erreur création table users:", err.message);
+    }
+}
+
+/**
  * Crée le compte admin par défaut s'il n'existe pas encore.
  */
 async function seedAdmin() {
@@ -80,6 +99,7 @@ async function waitForDB(retries = 10, delay = 2000) {
 async function start() {
     try {
         await waitForDB();
+        await ensureUsersTable();
         await syncTables();
         await seedAdmin();
         app.listen(PORT, () => {
